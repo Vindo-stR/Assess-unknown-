@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HACK//TRACE</title>
+
+<style>
+* {
+    box-sizing: border-box;
+    user-select: none;
+}
+
+body {
+    margin: 0;
+    background: #020403;
+    color: #63ff8a;
+    font-family: monospace;
+    overflow: hidden;
+}
+
+#screen {
+    width: 100vw;
+    height: 100vh;
+    position: relative;
+    background:
+        linear-gradient(rgba(0,255,80,.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,255,80,.04) 1px, transparent 1px);
+    background-size: 35px 35px;
+}
+
+header {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    padding: 18px;
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 1px solid #164b25;
+    background: rgba(0,10,4,.8);
+    z-index: 5;
+}
+
+#target {
+    position: absolute;
+    width: 65px;
+    height: 65px;
+    border: 2px solid #63ff8a;
+    border-radius: 50%;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 20px #1aff55;
+    animation: pulse .7s infinite alternate;
+}
+
+#target::before {
+    content: "+";
+    font-size: 30px;
+}
+
+@keyframes pulse {
+    from {
+        transform: scale(.85);
+        box-shadow: 0 0 8px #1aff55;
+    }
+    to {
+        transform: scale(1);
+        box-shadow: 0 0 25px #1aff55;
+    }
+}
+
+#menu {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0,4,2,.94);
+    z-index: 10;
+    text-align: center;
+}
+
+.panel {
+    width: min(90%, 450px);
+    border: 1px solid #276b39;
+    padding: 35px 25px;
+    box-shadow: 0 0 35px rgba(0,255,70,.1);
+}
+
+h1 {
+    font-size: 42px;
+    margin: 0 0 10px;
+    letter-spacing: 4px;
+}
+
+p {
+    color: #9bcaa6;
+}
+
+button {
+    margin-top: 20px;
+    padding: 14px 35px;
+    background: transparent;
+    color: #63ff8a;
+    border: 1px solid #63ff8a;
+    font-family: monospace;
+    font-size: 17px;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #63ff8a;
+    color: #020403;
+}
+
+#gameover {
+    display: none;
+    position: absolute;
+    inset: 0;
+    z-index: 20;
+    background: rgba(0,4,2,.96);
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+</style>
+</head>
+
+<body>
+
+<div id="screen">
+
+    <header>
+        <div>SYSTEM: <span id="level">01</span></div>
+        <div>SCORE: <span id="score">0000</span></div>
+        <div>TIME: <span id="time">30</span></div>
+    </header>
+
+    <div id="target"></div>
+
+    <div id="menu">
+        <div class="panel">
+            <div>◆ SECURE TERMINAL ◆</div>
+
+            <h1>HACK//TRACE</h1>
+
+            <p>
+                Locate the target.<br>
+                Click before it disappears.
+            </p>
+
+            <p>
+                Every successful trace<br>
+                increases the difficulty.
+            </p>
+
+            <button onclick="startGame()">START TRACE</button>
+        </div>
+    </div>
+
+    <div id="gameover">
+        <div class="panel">
+            <div>⚠ CONNECTION TERMINATED ⚠</div>
+
+            <h1>TRACE FAILED</h1>
+
+            <p>FINAL SCORE:</p>
+
+            <h1 id="finalScore">0000</h1>
+
+            <button onclick="startGame()">RETRY</button>
+        </div>
+    </div>
+
+</div>
+
+<script>
+
+let score = 0;
+let time = 30;
+let level = 1;
+let playing = false;
+
+let timer;
+let targetTimer;
+
+const target = document.getElementById("target");
+const menu = document.getElementById("menu");
+const gameover = document.getElementById("gameover");
+
+function startGame() {
+
+    score = 0;
+    time = 30;
+    level = 1;
+
+    playing = true;
+
+    menu.style.display = "none";
+    gameover.style.display = "none";
+
+    updateUI();
+    spawnTarget();
+
+    clearInterval(timer);
+
+    timer = setInterval(() => {
+
+        time--;
+
+        updateUI();
+
+        if (time <= 0) {
+            endGame();
+        }
+
+    }, 1000);
+}
+
+function spawnTarget() {
+
+    if (!playing) return;
+
+    clearTimeout(targetTimer);
+
+    const size = Math.max(35, 65 - level * 2);
+
+    target.style.width = size + "px";
+    target.style.height = size + "px";
+
+    const maxX = window.innerWidth - size;
+    const maxY = window.innerHeight - size;
+
+    const x = Math.random() * maxX;
+    const y = 70 + Math.random() * (maxY - 70);
+
+    target.style.left = x + "px";
+    target.style.top = y + "px";
+
+    target.style.display = "flex";
+
+    /*
+       كلما ارتفع المستوى
+       تقل مدة ظهور الهدف
+    */
+
+    const duration = Math.max(350, 1100 - level * 60);
+
+    targetTimer = setTimeout(() => {
+
+        if (!playing) return;
+
+        time--;
+
+        spawnTarget();
+
+        updateUI();
+
+    }, duration);
+}
+
+target.addEventListener("click", function(e) {
+
+    if (!playing) return;
+
+    e.stopPropagation();
+
+    score += 100 * level;
+
+    if (score % 1000 === 0) {
+        level++;
+    }
+
+    updateUI();
+
+    spawnTarget();
+});
+
+function updateUI() {
+
+    document.getElementById("score").textContent =
+        String(score).padStart(4, "0");
+
+    document.getElementById("time").textContent =
+        time;
+
+    document.getElementById("level").textContent =
+        String(level).padStart(2, "0");
+}
+
+function endGame() {
+
+    playing = false;
+
+    clearInterval(timer);
+    clearTimeout(targetTimer);
+
+    target.style.display = "none";
+
+    document.getElementById("finalScore").textContent =
+        String(score).padStart(4, "0");
+
+    gameover.style.display = "flex";
+}
+
+</script>
+
+</body>
+</html>
