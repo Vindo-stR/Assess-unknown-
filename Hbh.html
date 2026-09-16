@@ -9,14 +9,16 @@
 <button onclick="vibrate()">اضغط هنا 👀</button>
 
 <script>
-function vibrate() {
+window.addEventListener("load", () => {
     if ("vibrate" in navigator) {
-        navigator.vibrate(200);
-    } else {
-        alert("الهاتف أو المتصفح لا يدعم الاهتزاز");
+        navigator.vibrate([
+            500, 100,
+            1000, 150,
+            1500, 200,
+            1000
+        ]);
     }
-}
+});
 </script>
-
 </body>
 </html>
