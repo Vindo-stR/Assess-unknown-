@@ -2,16 +2,49 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Test</title>
+    <title>foot GAME</title>
+
+    <style>
+        body {
+            margin: 0;
+            background: #000;
+            color: white;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: Arial;
+        }
+
+        button {
+            font-size: 30px;
+            padding: 15px 50px;
+            border: 0;
+            border-radius: 15px;
+        }
+    </style>
 </head>
+
 <body>
- <button onclick="vibrate()">اضغط هنا 👀</button>
+
+<button onclick="startGame()">PLAY 🎮</button>
+
+<audio id="scareSound" src="scare.mp3" preload="auto"></audio>
+
 <script>
-window.addEventListener("load", () => {
-    if ("vibrate" in navigator) {
-        navigator.vibrate([500, 100, 1000, 150, 1500]);
-    }
-});
+function startGame() {
+    const audio = document.getElementById("scareSound");
+
+    audio.currentTime = 0;
+    audio.volume = 1.0;
+    audio.play();
+
+    document.body.innerHTML = `
+        <div style="text-align:center">
+            <h1>💀 YOU LOST</h1>
+        </div>
+    `;
+}
 </script>
 
 </body>
