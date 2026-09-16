@@ -6,18 +6,13 @@
 </head>
 <body>
 
-
 <script>
 window.addEventListener("load", () => {
     if ("vibrate" in navigator) {
-        navigator.vibrate([
-            500, 100,
-            1000, 150,
-            1500, 200,
-            1000
-        ]);
+        navigator.vibrate([500, 100, 1000, 150, 1500]);
     }
 });
 </script>
+
 </body>
 </html>
